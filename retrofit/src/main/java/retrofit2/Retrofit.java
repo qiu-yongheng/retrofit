@@ -61,11 +61,23 @@ public final class Retrofit {
 
   private final okhttp3.Call.Factory callFactory;
   private final HttpUrl baseUrl;
+  /** 数据转换: 响应, 请求, 参数 */
   private final List<Converter.Factory> converterFactories;
+  /** call适配器转换 */
   private final List<CallAdapter.Factory> adapterFactories;
+  /** 线程执行 */
   private final Executor callbackExecutor;
   private final boolean validateEagerly;
 
+  /**
+   * 构造函数
+   * @param callFactory
+   * @param baseUrl
+   * @param converterFactories
+   * @param adapterFactories
+   * @param callbackExecutor
+   * @param validateEagerly
+   */
   Retrofit(okhttp3.Call.Factory callFactory, HttpUrl baseUrl,
       List<Converter.Factory> converterFactories, List<CallAdapter.Factory> adapterFactories,
       Executor callbackExecutor, boolean validateEagerly) {
@@ -122,43 +134,73 @@ public final class Retrofit {
    *   Call&lt;List&lt;Item&gt;&gt; categoryList(@Path("cat") String a, @Query("page") int b);
    * }
    * </pre>
+   *
+   *
+   * 创建接口代理:
    */
   @SuppressWarnings("unchecked") // Single-interface proxy creation guarded by parameter safety.
   public <T> T create(final Class<T> service) {
+    // 检查service是否合法: 是否接口; 是否继承其他接口(猜测)
     Utils.validateServiceInterface(service);
+
+    // 解析接口方法, 并保存结果到map集合中
     if (validateEagerly) {
       eagerlyValidateMethods(service);
     }
+
+    // 开始创建接口代理类
     return (T) Proxy.newProxyInstance(service.getClassLoader(), new Class<?>[] { service },
         new InvocationHandler() {
+          // 获取平台配置
           private final Platform platform = Platform.get();
 
           @Override public Object invoke(Object proxy, Method method, Object... args)
               throws Throwable {
             // If the method is a method from Object then defer to normal invocation.
+            // 如果这个方法是object类中的方法, 按照正常调用
             if (method.getDeclaringClass() == Object.class) {
               return method.invoke(this, args);
             }
+
+            // 安卓平台默认false
             if (platform.isDefaultMethod(method)) {
               return platform.invokeDefaultMethod(method, service, proxy, args);
             }
+
+            // 获取方法解析后的数据
             ServiceMethod<Object, Object> serviceMethod =
                 (ServiceMethod<Object, Object>) loadServiceMethod(method);
+
+            // 创建Call对象, 用OKHTTP实现
             OkHttpCall<Object> okHttpCall = new OkHttpCall<>(serviceMethod, args);
+
             return serviceMethod.callAdapter.adapt(okHttpCall);
           }
         });
   }
 
+  /**
+   * 读取接口方法, 并解析
+   * @param service
+   */
   private void eagerlyValidateMethods(Class<?> service) {
+    // 获取当前平台
     Platform platform = Platform.get();
+
+    // getDeclaredMethods: 获取类中的所有方法, 包括private
     for (Method method : service.getDeclaredMethods()) {
+      // 安卓平台默认为false
       if (!platform.isDefaultMethod(method)) {
         loadServiceMethod(method);
       }
     }
   }
 
+  /**
+   * 解析接口方法, 并保存到map集合中
+   * @param method
+   * @return
+   */
   ServiceMethod<?, ?> loadServiceMethod(Method method) {
     ServiceMethod<?, ?> result = serviceMethodCache.get(method);
     if (result != null) return result;
@@ -176,6 +218,8 @@ public final class Retrofit {
   /**
    * The factory used to create {@linkplain okhttp3.Call OkHttp calls} for sending a HTTP requests.
    * Typically an instance of {@link OkHttpClient}.
+   *
+   * 获取OKHTTP客户端
    */
   public okhttp3.Call.Factory callFactory() {
     return callFactory;
@@ -189,6 +233,8 @@ public final class Retrofit {
   /**
    * Returns a list of the factories tried when creating a
    * {@linkplain #callAdapter(Type, Annotation[])} call adapter}.
+   *
+   * call适配器集合
    */
   public List<CallAdapter.Factory> callAdapterFactories() {
     return adapterFactories;

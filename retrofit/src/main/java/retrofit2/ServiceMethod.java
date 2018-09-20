@@ -56,6 +56,7 @@ import retrofit2.http.QueryMap;
 import retrofit2.http.Url;
 
 /** Adapts an invocation of an interface method into an HTTP call. */
+/** 接口方法转换到HTTP调用的适配器 */
 final class ServiceMethod<R, T> {
   // Upper and lower characters, digits, underscores, and hyphens, starting with a character.
   static final String PARAM = "[a-zA-Z][a-zA-Z0-9_-]*";
@@ -106,6 +107,7 @@ final class ServiceMethod<R, T> {
     }
 
     for (int p = 0; p < argumentCount; p++) {
+      /** 解析方法参数, 并保存到requestBuilder */
       handlers[p].apply(requestBuilder, args[p]);
     }
 
@@ -121,12 +123,18 @@ final class ServiceMethod<R, T> {
    * Inspects the annotations on an interface method to construct a reusable service method. This
    * requires potentially-expensive reflection so it is best to build each service method only once
    * and reuse it. Builders cannot be reused.
+   *
+   * 检查接口的注释方法构建一个可重用的服务方法。这需要很可能代价昂贵的反射,所以最好是构建每个服务方法只有一次和重用它。建筑商不能重用
    */
   static final class Builder<T, R> {
     final Retrofit retrofit;
+    /** 接口方法 */
     final Method method;
+    /** 方法注解 */
     final Annotation[] methodAnnotations;
+    /** 方法参数注解 */
     final Annotation[][] parameterAnnotationsArray;
+    /** 方法参数类型 */
     final Type[] parameterTypes;
 
     Type responseType;
@@ -156,6 +164,11 @@ final class ServiceMethod<R, T> {
       this.parameterAnnotationsArray = method.getParameterAnnotations();
     }
 
+    /**
+     * 创建call adapter
+     * 解析方法参数
+     * @return
+     */
     public ServiceMethod build() {
       callAdapter = createCallAdapter();
       responseType = callAdapter.responseType();
@@ -218,15 +231,23 @@ final class ServiceMethod<R, T> {
       return new ServiceMethod<>(this);
     }
 
+    /**
+     * call adapter
+     * @return
+     */
     private CallAdapter<T, R> createCallAdapter() {
+      // 返回类型
       Type returnType = method.getGenericReturnType();
+      // 检查返回类型是否class
       if (Utils.hasUnresolvableType(returnType)) {
         throw methodError(
             "Method return type must not include a type variable or wildcard: %s", returnType);
       }
+      // 不能返回void
       if (returnType == void.class) {
         throw methodError("Service methods cannot return void.");
       }
+      // 获取方法注解
       Annotation[] annotations = method.getAnnotations();
       try {
         //noinspection unchecked

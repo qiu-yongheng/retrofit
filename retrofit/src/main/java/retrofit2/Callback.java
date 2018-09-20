@@ -27,6 +27,7 @@ package retrofit2;
  * </ul>
  *
  * @param <T> Successful response body type.
+ * call 异步执行回调
  */
 public interface Callback<T> {
   /**

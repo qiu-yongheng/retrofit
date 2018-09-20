@@ -24,6 +24,7 @@ import java.lang.reflect.Type;
  * created by {@linkplain Factory a factory} which is
  * {@linkplain Retrofit.Builder#addCallAdapterFactory(Factory) installed} into the {@link Retrofit}
  * instance.
+ * call 适配器: call() -> Observerble()
  */
 public interface CallAdapter<R, T> {
   /**
@@ -33,6 +34,7 @@ public interface CallAdapter<R, T> {
    * <p>
    * Note: This is typically not the same type as the {@code returnType} provided to this call
    * adapter's factory.
+   * 需要转换的数据类型
    */
   Type responseType();
 
@@ -70,6 +72,7 @@ public interface CallAdapter<R, T> {
     /**
      * Extract the upper bound of the generic parameter at {@code index} from {@code type}. For
      * example, index 1 of {@code Map<String, ? extends Runnable>} returns {@code Runnable}.
+     * 获取参数泛型里面的类型
      */
     protected static Type getParameterUpperBound(int index, ParameterizedType type) {
       return Utils.getParameterUpperBound(index, type);
@@ -78,6 +81,7 @@ public interface CallAdapter<R, T> {
     /**
      * Extract the raw class type from {@code type}. For example, the type representing
      * {@code List<? extends Runnable>} returns {@code List.class}.
+     * 获取参数的类型
      */
     protected static Class<?> getRawType(Type type) {
       return Utils.getRawType(type);

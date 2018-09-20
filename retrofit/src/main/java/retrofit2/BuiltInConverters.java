@@ -22,7 +22,17 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.http.Streaming;
 
+/**
+ * 转换工厂
+ */
 final class BuiltInConverters extends Converter.Factory {
+  /**
+   * 响应体转换工厂
+   * @param type
+   * @param annotations
+   * @param retrofit
+   * @return
+   */
   @Override
   public Converter<ResponseBody, ?> responseBodyConverter(Type type, Annotation[] annotations,
       Retrofit retrofit) {
@@ -37,6 +47,14 @@ final class BuiltInConverters extends Converter.Factory {
     return null;
   }
 
+  /**
+   * 请求体转换工厂
+   * @param type
+   * @param parameterAnnotations
+   * @param methodAnnotations
+   * @param retrofit
+   * @return
+   */
   @Override
   public Converter<?, RequestBody> requestBodyConverter(Type type,
       Annotation[] parameterAnnotations, Annotation[] methodAnnotations, Retrofit retrofit) {
@@ -55,6 +73,9 @@ final class BuiltInConverters extends Converter.Factory {
     }
   }
 
+  /**
+   * 返回本身
+   */
   static final class RequestBodyConverter implements Converter<RequestBody, RequestBody> {
     static final RequestBodyConverter INSTANCE = new RequestBodyConverter();
 
@@ -63,6 +84,9 @@ final class BuiltInConverters extends Converter.Factory {
     }
   }
 
+  /**
+   * 返回本身
+   */
   static final class StreamingResponseBodyConverter
       implements Converter<ResponseBody, ResponseBody> {
     static final StreamingResponseBodyConverter INSTANCE = new StreamingResponseBodyConverter();
@@ -72,6 +96,9 @@ final class BuiltInConverters extends Converter.Factory {
     }
   }
 
+  /**
+   * 返回buffer
+   */
   static final class BufferingResponseBodyConverter
       implements Converter<ResponseBody, ResponseBody> {
     static final BufferingResponseBodyConverter INSTANCE = new BufferingResponseBodyConverter();

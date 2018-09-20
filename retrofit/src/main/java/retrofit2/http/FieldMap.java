@@ -38,6 +38,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *
  * @see FormUrlEncoded
  * @see Field
+ *
+ * post表单提交
  */
 @Documented
 @Target(PARAMETER)

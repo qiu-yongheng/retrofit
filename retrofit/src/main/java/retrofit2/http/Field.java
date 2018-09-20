@@ -51,6 +51,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  *
  * @see FormUrlEncoded
  * @see FieldMap
+ *
+ * post提交表单字段
+ * 需要加@FormUrlEncoded注解
  */
 @Documented
 @Target(PARAMETER)

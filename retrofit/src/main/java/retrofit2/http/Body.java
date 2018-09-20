@@ -32,6 +32,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * request body.
  * <p>
  * Body parameters may not be {@code null}.
+ *
+ * 使用该注释服务方法参数当你想直接控制POST或PUT请求的请求主体(而不是发送的请求参数或form-style请求主体)。对象将序列化使用{ @link翻新改造} { @link转换器转换器}实例和结果将直接作为请求体
  */
 @Documented
 @Target(PARAMETER)

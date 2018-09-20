@@ -19,6 +19,9 @@ import okhttp3.Headers;
 import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.ResponseBody;
+/**
+ * 封装响应数据
+ */
 
 /** An HTTP response. */
 public final class Response<T> {

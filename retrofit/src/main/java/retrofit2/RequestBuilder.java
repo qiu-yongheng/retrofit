@@ -26,7 +26,11 @@ import okhttp3.RequestBody;
 import okio.Buffer;
 import okio.BufferedSink;
 
+/**
+ * 保存请求相关数据
+ */
 final class RequestBuilder {
+  /** 十六进制字符 */
   private static final char[] HEX_DIGITS =
       { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
   private static final String PATH_SEGMENT_ALWAYS_ENCODE_SET = " \"<>^`{}|\\?#";
@@ -45,6 +49,17 @@ final class RequestBuilder {
   private FormBody.Builder formBuilder;
   private RequestBody body;
 
+  /**
+   * 构造函数
+   * @param method
+   * @param baseUrl
+   * @param relativeUrl
+   * @param headers
+   * @param contentType
+   * @param hasBody
+   * @param isFormEncoded
+   * @param isMultipart
+   */
   RequestBuilder(String method, HttpUrl baseUrl, String relativeUrl, Headers headers,
       MediaType contentType, boolean hasBody, boolean isFormEncoded, boolean isMultipart) {
     this.method = method;
@@ -73,6 +88,12 @@ final class RequestBuilder {
     this.relativeUrl = relativeUrl.toString();
   }
 
+  /**
+   * 添加请求头
+   * Content-Type特殊处理
+   * @param name
+   * @param value
+   */
   void addHeader(String name, String value) {
     if ("Content-Type".equalsIgnoreCase(name)) {
       MediaType type = MediaType.parse(value);
@@ -85,6 +106,12 @@ final class RequestBuilder {
     }
   }
 
+  /**
+   * 添加path参数, 从相对URL中替换
+   * @param name
+   * @param value
+   * @param encoded
+   */
   void addPathParam(String name, String value, boolean encoded) {
     if (relativeUrl == null) {
       // The relative URL is cleared when the first query parameter is set.
@@ -93,6 +120,12 @@ final class RequestBuilder {
     relativeUrl = relativeUrl.replace("{" + name + "}", canonicalizeForPath(value, encoded));
   }
 
+  /**
+   * 规范化路径string
+   * @param input
+   * @param alreadyEncoded
+   * @return
+   */
   private static String canonicalizeForPath(String input, boolean alreadyEncoded) {
     int codePoint;
     for (int i = 0, limit = input.length(); i < limit; i += Character.charCount(codePoint)) {
@@ -112,6 +145,14 @@ final class RequestBuilder {
     return input;
   }
 
+  /**
+   * 规范化路径
+   * @param out
+   * @param input
+   * @param pos
+   * @param limit
+   * @param alreadyEncoded
+   */
   private static void canonicalizeForPath(Buffer out, String input, int pos, int limit,
       boolean alreadyEncoded) {
     Buffer utf8Buffer = null; // Lazily allocated.
@@ -142,6 +183,12 @@ final class RequestBuilder {
     }
   }
 
+  /**
+   * @get 参数解析, 将参数拼接到URL
+   * @param name
+   * @param value
+   * @param encoded
+   */
   void addQueryParam(String name, String value, boolean encoded) {
     if (relativeUrl != null) {
       // Do a one-time combination of the built relative URL and the base URL.
@@ -160,6 +207,12 @@ final class RequestBuilder {
     }
   }
 
+  /**
+   * 添加表单字段
+   * @param name
+   * @param value
+   * @param encoded
+   */
   void addFormField(String name, String value, boolean encoded) {
     if (encoded) {
       formBuilder.addEncoded(name, value);
@@ -180,6 +233,10 @@ final class RequestBuilder {
     this.body = body;
   }
 
+  /**
+   * 建造
+   * @return
+   */
   Request build() {
     HttpUrl url;
     HttpUrl.Builder urlBuilder = this.urlBuilder;

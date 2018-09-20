@@ -57,6 +57,8 @@ public interface Converter<F, T> {
      * {@code type} cannot be handled by this factory. This is used to create converters for types
      * specified by {@link Body @Body}, {@link Part @Part}, and {@link PartMap @PartMap}
      * values.
+     *
+     * 用来转换请求参数{@link Body @Body}, {@link Part @Part}, and {@link PartMap @PartMap}
      */
     public Converter<?, RequestBody> requestBodyConverter(Type type,
         Annotation[] parameterAnnotations, Annotation[] methodAnnotations, Retrofit retrofit) {
@@ -69,6 +71,8 @@ public interface Converter<F, T> {
      * specified by {@link Field @Field}, {@link FieldMap @FieldMap} values,
      * {@link Header @Header}, {@link HeaderMap @HeaderMap}, {@link Path @Path},
      * {@link Query @Query}, and {@link QueryMap @QueryMap} values.
+     *
+     * 用来转换请求参数
      */
     public Converter<?, String> stringConverter(Type type, Annotation[] annotations,
         Retrofit retrofit) {

@@ -22,6 +22,8 @@ import java.lang.reflect.Type;
  * Creates call adapters for that uses the same thread for both I/O and application-level
  * callbacks. For synchronous calls this is the application thread making the request; for
  * asynchronous calls this is a thread provided by OkHttp's dispatcher.
+ *
+ * 默认的call适配器, 直接返回原来的call
  */
 final class DefaultCallAdapterFactory extends CallAdapter.Factory {
   static final CallAdapter.Factory INSTANCE = new DefaultCallAdapterFactory();
@@ -32,6 +34,7 @@ final class DefaultCallAdapterFactory extends CallAdapter.Factory {
       return null;
     }
 
+    // 获取响应类型
     final Type responseType = Utils.getCallResponseType(returnType);
     return new CallAdapter<Object, Call<?>>() {
       @Override public Type responseType() {

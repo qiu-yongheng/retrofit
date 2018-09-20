@@ -24,8 +24,14 @@ import okio.BufferedSource;
 import okio.ForwardingSource;
 import okio.Okio;
 
+/**
+ * retrofit只定义接口, 实际的同异步请求有子类自行实现, 这里是OKHTTP的实现
+ * @param <T>
+ */
 final class OkHttpCall<T> implements Call<T> {
+  /**  */
   private final ServiceMethod<T, ?> serviceMethod;
+  /** 方法参数 */
   private final Object[] args;
 
   private volatile boolean canceled;
@@ -174,7 +180,13 @@ final class OkHttpCall<T> implements Call<T> {
     return parseResponse(call.execute());
   }
 
+  /**
+   * 创建okhttp call
+   * @return
+   * @throws IOException
+   */
   private okhttp3.Call createRawCall() throws IOException {
+    /** 创建okhttp请求 */
     Request request = serviceMethod.toRequest(args);
     okhttp3.Call call = serviceMethod.callFactory.newCall(request);
     if (call == null) {

@@ -21,6 +21,9 @@ import java.lang.reflect.Type;
 import java.util.concurrent.Executor;
 import okhttp3.Request;
 
+/**
+ * 修改异步回调线程
+ */
 final class ExecutorCallAdapterFactory extends CallAdapter.Factory {
   final Executor callbackExecutor;
 
@@ -30,9 +33,11 @@ final class ExecutorCallAdapterFactory extends CallAdapter.Factory {
 
   @Override
   public CallAdapter<?, ?> get(Type returnType, Annotation[] annotations, Retrofit retrofit) {
+    // 原始类型必须为call
     if (getRawType(returnType) != Call.class) {
       return null;
     }
+    // 响应类型
     final Type responseType = Utils.getCallResponseType(returnType);
     return new CallAdapter<Object, Call<?>>() {
       @Override public Type responseType() {
@@ -45,6 +50,10 @@ final class ExecutorCallAdapterFactory extends CallAdapter.Factory {
     };
   }
 
+  /**
+   * 将Call的异步执行回调转换线程
+   * @param <T>
+   */
   static final class ExecutorCallbackCall<T> implements Call<T> {
     final Executor callbackExecutor;
     final Call<T> delegate;
@@ -57,7 +66,13 @@ final class ExecutorCallAdapterFactory extends CallAdapter.Factory {
     @Override public void enqueue(final Callback<T> callback) {
       if (callback == null) throw new NullPointerException("callback == null");
 
+      // 执行原始Call
       delegate.enqueue(new Callback<T>() {
+        /**
+         * success
+         * @param call
+         * @param response
+         */
         @Override public void onResponse(Call<T> call, final Response<T> response) {
           callbackExecutor.execute(new Runnable() {
             @Override public void run() {
@@ -71,6 +86,11 @@ final class ExecutorCallAdapterFactory extends CallAdapter.Factory {
           });
         }
 
+        /**
+         * failure
+         * @param call
+         * @param t
+         */
         @Override public void onFailure(Call<T> call, final Throwable t) {
           callbackExecutor.execute(new Runnable() {
             @Override public void run() {
